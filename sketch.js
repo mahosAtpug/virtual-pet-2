@@ -18,17 +18,16 @@ function setup() {
   database = firebase.database();
   // foodStock=database.ref("food");
   // foodStock.on("value",readStock);
-  database.ref("food").on ("value", readStock);
   happyDog=createSprite(250,250);
  happyDog.addImage(dogImg);
  happyDog.scale=0.2;
- feed=createButton("Feed The Dog");
- feed.position(700,95);
- feed.mousePressed(feedDog);
+
+ feedPet=createButton("Feed The Dog");
+ feedPet.position(600,95);
+ feedPet.mousePressed(feedDog);
 
  addFood=createButton("Add Food");
- addFood.position(800,95);
- addFood.mousePressed(addFoods)
+ addFood.position(700,95);
 
  foodObj = new Food();
 
@@ -40,35 +39,32 @@ function setup() {
 
 function draw() { 
   background(46, 139, 87);
+  readStock();
   drawSprites();
   fill ("white")
-  text ("Note : Press UP_ARROW Key to feed the Drago milk" ,100,40);
-  text("Remaining Food " + foodS, 100,80)
+  text("Remaining Food " + foodS, 100,60)
   //add styles here
   fedTime=database.ref("FeedTime");
   fedTime.on("value",function(data){
     lastFed=data.val();
   })
-    textSize(15);
-   if (lastFed>=12){
-    text("Last Feed :"+ lastFed + "PM" , 350,30 );
-   } 
-        
-   else if (lastFed===0){
-     text("Last Feed : 12 AM" , 350,30);
-   }
-   
-   else{
-    text("Last Feed : "+ lastFed + "AM",350,30);
-   }
-  foodObj.display();
+  
 
+   addFood.mousePressed(()=>{
+     addFoods();
+     
+   });
+   
+   feedPet.mousePressed(()=>{
+     feedDog();
+   })
+  foodObj.display();
 }
 
-
-
 function readStock(data){
-  foodS=data.val();
+  database.ref("food").on ("value",(data)=>{
+    foodS=data.val();
+  });
   console.log(foodS)
 
 }
@@ -79,28 +75,21 @@ function writeStock(x){
 }
 
 function feedDog(){
-  if (mousePressed(feedDog)){
-
-  
-  dog.addImage(happyDog);
-
-  foodObj.updateFoodStock(foodObj.getFoodStock()-1);
+  foodS--;
+  happyDog.addImage(happyDogImg);
   database.ref("/").update({
-    Food:foodObj.getFoodStock(),
-    FeedTime:hour()
+    food:foodS,
+  
   })
-}
 }
 
 function addFoods(){
-  if (mousePressed(addFood)){
     foodS++;
     database.ref("/").update({
-      Food:foodS
+      food:foodS
     })
   }
   
-}
 
 
 
